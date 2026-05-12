@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AYUDA | RACK4MASTER-REFERENCE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Barlow+Condensed:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090e;--panel:#0e0f18;--panel2:#121320;--border:#1c1d30;--border2:#282a42;
+  --amber:#ffaa00;--amber2:#ff7700;--green:#00ffa3;--blue:#4499ff;--red:#ff3355;
+  --text:#c8ccec;--label:#b2b6d2;--dim:#555878;--bright:#eef0ff;
+  --mono:'Share Tech Mono','Courier New',monospace;--sans:'Barlow Condensed',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;letter-spacing:.03em;min-height:100vh;padding:20px;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,170,0,.012) 40px),
+  repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,170,0,.012) 40px);}
+
+#help-app{max-width:900px;margin:auto;position:relative;z-index:1;}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:25px;}
+.app-brand{display:flex;flex-direction:column;gap:5px;}
+.app-title{font-family:'Orbitron',monospace;font-weight:900;font-size:1.5rem;letter-spacing:.06em;color:var(--amber);text-shadow:0 0 20px rgba(255,170,0,.3);}
+.app-title .sep{color:var(--border2);}
+.app-title .ref{font-size:.6em;font-weight:700;letter-spacing:.12em;color:var(--bright);opacity:.7;vertical-align:middle;}
+.app-sub{font-size:.8rem;letter-spacing:.15em;color:var(--label);text-transform:uppercase;}
+
+.nav-tabs{display:flex;gap:5px;margin-bottom:20px;border-bottom:1px solid var(--border2);}
+.tab-btn{background:var(--panel);border:1px solid var(--border2);border-bottom:none;color:var(--dim);padding:10px 20px;cursor:pointer;font-family:var(--sans);font-weight:700;text-transform:uppercase;letter-spacing:.1em;transition:all .2s;border-radius:4px 4px 0 0;}
+.tab-btn:hover{color:var(--text);background:var(--panel2);}
+.tab-btn.active{color:var(--amber);background:var(--panel2);border-color:var(--amber);border-bottom:2px solid var(--bg);margin-bottom:-1px;}
+
+.content-section{display:none;background:var(--panel);border:1px solid var(--border);padding:30px;border-radius:0 0 4px 4px;animation:fadeIn 0.3s ease-out;}
+.content-section.active{display:block;}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+h2{font-family:var(--sans);font-size:1.4rem;color:var(--amber);margin-bottom:20px;text-transform:uppercase;letter-spacing:.1em;border-left:4px solid var(--amber);padding-left:15px;}
+h3{font-family:var(--sans);font-size:1.1rem;color:var(--bright);margin:25px 0 10px;text-transform:uppercase;letter-spacing:.05em;}
+p{margin-bottom:15px;color:var(--text);}
+ul{margin-bottom:20px;padding-left:20px;}
+li{margin-bottom:8px;}
+
+.highlight{color:var(--amber);font-weight:bold;}
+.code-inline{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;font-family:var(--mono);color:var(--blue);}
+
+.rack-card{background:var(--panel2);border:1px solid var(--border2);padding:15px;margin-bottom:15px;border-radius:3px;}
+.rack-card h4{font-family:var(--sans);font-size:0.9rem;color:var(--label);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.rack-card h4::before{content:'';width:8px;height:8px;border-radius:50%;display:inline-block;}
+.ref-dot::before{background:var(--amber);}
+.target-dot::before{background:var(--blue);}
+.fx-dot::before{background:var(--border2);}
+.analysis-dot::before{background:var(--amber);}
+
+.step-box{display:flex;gap:20px;margin-bottom:20px;}
+.step-num{background:var(--amber);color:#000;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0;}
+.step-text{flex:1;}
+
+.search-wrap{margin-bottom:20px;position:relative;}
+#search-input{width:100%;background:var(--panel2);border:1px solid var(--border2);padding:12px 15px;color:var(--text);font-family:var(--mono);border-radius:4px;outline:none;}
+#search-input:focus{border-color:var(--amber);}
+
+footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);padding-bottom:20px;}
+
+.btn-back{display:inline-block;margin-top:20px;padding:8px 15px;border:1px solid var(--amber);color:var(--amber);text-decoration:none;font-family:var(--sans);font-weight:700;text-transform:uppercase;border-radius:2px;transition:all .2s;}
+.btn-back:hover{background:var(--amber);color:#000;}
+</style>
+</head>
+<body>
+
+<div id="help-app">
+  <header>
+    <div class="app-brand">
+      <div class="app-title">RACK4MASTER<span class="sep"> / </span><span class="ref">HELP CENTER</span></div>
+      <div class="app-sub">Guía de Usuario Interactiva &mdash; v7.0</div>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <input type="text" id="search-input" placeholder="Buscar funcionalidad (ej: EQ, Análisis, Exportar)...">
+  </div>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="openTab(event, 'quickstart')">Inicio Rápido</button>
+    <button class="tab-btn" onclick="openTab(event, 'interface')">Interfaz</button>
+    <button class="tab-btn" onclick="openTab(event, 'processing')">Procesamiento</button>
+    <button class="tab-btn" onclick="openTab(event, 'faq')">FAQ</button>
+  </nav>
+
+  <!-- SECCIÓN: INICIO RÁPIDO -->
+  <div id="quickstart" class="content-section active">
+    <h2>Guía de Inicio Rápido</h2>
+    <p>RACK4MASTER-REFERENCE es una herramienta avanzada de masterización por referencia diseñada para igualar la huella espectral de tu pista con una de referencia profesional.</p>
+    
+    <div class="step-box">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <p><span class="highlight">Carga la Referencia:</span> Arrastra y suelta tu archivo de audio profesional en el rack superior (Naranja). Este será tu objetivo de sonido.</p>
+      </div>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <p><span class="highlight">Carga tu Pista (Target):</span> Arrastra tu mezcla en el rack azul. El sistema generará automáticamente una forma de onda y un análisis espectral.</p>
+      </div>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <p><span class="highlight">Analiza:</span> Haz clic en el botón central <span class="code-inline">ANALYZE DIFFERENCES</span>. La tabla de análisis mostrará las discrepancias en dB para cada banda de frecuencia.</p>
+      </div>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <p><span class="highlight">Ajusta y Masteriza:</span> Utiliza los módulos de EQ y Limitador para compensar las diferencias marcadas en la tabla. Observa el espectro resultante en tiempo real.</p>
+      </div>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">5</div>
+      <div class="step-text">
+        <p><span class="highlight">Exporta:</span> Una vez satisfecho, utiliza el botón <span class="code-inline">DOWNLOAD MASTER</span> para obtener tu archivo procesado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN: INTERFAZ -->
+  <div id="interface" class="content-section">
+    <h2>Exploración de la Interfaz</h2>
+    
+    <div class="rack-card">
+      <h4 class="ref-dot">Reference Rack</h4>
+      <p>Muestra la forma de onda y el espectro de la pista de referencia. Los datos de esta pista son la base para el cálculo de diferencias.</p>
+    </div>
+
+    <div class="rack-card">
+      <h4 class="target-dot">Target Rack</h4>
+      <p>Contiene tu pista original. Aquí puedes controlar la reproducción y visualizar dónde se encuentra tu mezcla actualmente en comparación con la referencia.</p>
+    </div>
+
+    <div class="rack-card">
+      <h4 class="fx-dot">FX Modules</h4>
+      <ul>
+        <li><span class="highlight">HPF:</span> Filtro de paso alto para limpiar sub-frecuencias innecesarias.</li>
+        <li><span class="highlight">EQ de 8 Bandas:</span> Bandas fijas optimizadas para corrección tonal (60Hz a 16kHz).</li>
+        <li><span class="highlight">Limiter:</span> Control de dinámica final con Ceiling y Threshold.</li>
+      </ul>
+    </div>
+
+    <div class="rack-card">
+      <h4 class="analysis-dot">Analysis & Comparison</h4>
+      <p>El rack inferior combina los espectros de Referencia, Target y Resultado para una comparación visual directa. La tabla de análisis cuantifica estas diferencias.</p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN: PROCESAMIENTO -->
+  <div id="processing" class="content-section">
+    <h2>Lógica de Procesamiento</h2>
+    <h3>Interpretación de la Tabla</h3>
+    <p>La tabla de análisis utiliza códigos de colores para guiarte:</p>
+    <ul>
+      <li><span style="color:var(--green)">Verde (Positivo):</span> Tu pista tiene más energía en esa banda que la referencia.</li>
+      <li><span style="color:var(--red)">Rojo (Negativo):</span> Tu pista necesita más energía en esa banda.</li>
+      <li><span style="color:var(--dim)">Gris:</span> Diferencia insignificante.</li>
+    </ul>
+
+    <h3>Flujo de Señal</h3>
+    <p>El audio del Target pasa por los siguientes procesos en orden:</p>
+    <ol style="padding-left:20px; margin-bottom:20px;">
+      <li>Filtro de Paso Alto (HPF)</li>
+      <li>Ecualizador Paramétrico de 8 bandas</li>
+      <li>Limitador de Pared de Ladrillo (Brickwall)</li>
+      <li>Ganancia de Salida Final</li>
+    </ol>
+    
+    <p><span class="highlight">Nota:</span> El procesamiento es no destructivo en el navegador hasta que decides descargar el resultado.</p>
+  </div>
+
+  <!-- SECCIÓN: FAQ -->
+  <div id="faq" class="content-section">
+    <h2>Preguntas Frecuentes</h2>
+    
+    <h3>¿Por qué no escucho nada al cargar los archivos?</h3>
+    <p>Asegúrate de haber hecho clic en el botón "PLAY" del rack correspondiente. Algunos navegadores bloquean el audio automático hasta que hay una interacción del usuario.</p>
+
+    <h3>¿Qué formato de archivos soporta?</h3>
+    <p>Soporta formatos estándar web: WAV, MP3, OGG y FLAC. Se recomienda usar WAV para mantener la máxima fidelidad durante el análisis.</p>
+
+    <h3>¿El análisis es en tiempo real?</h3>
+    <p>El análisis inicial se realiza sobre el archivo completo al pulsar "ANALYZE". Sin embargo, el espectro del rack de comparación se actualiza en tiempo real mientras ajustas los controles de EQ.</p>
+
+    <h3>¿Cómo reseteo los valores?</h3>
+    <p>Puedes recargar la página para una limpieza total, o ajustar manualmente los sliders a su posición central (0dB).</p>
+  </div>
+
+  <footer>
+    RACK4MASTER-REFERENCE &copy; 2026 - Sistema de Ayuda Integrado
+  </footer>
+</div>
+
+<script>
+function openTab(evt, tabName) {
+  var i, content, tablinks;
+  content = document.getElementsByClassName("content-section");
+  for (i = 0; i < content.length; i++) {
+    content[i].style.display = "none";
+    content[i].classList.remove("active");
+  }
+  tablinks = document.getElementsByClassName("tab-btn");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+  document.getElementById(tabName).style.display = "block";
+  setTimeout(() => {
+    document.getElementById(tabName).classList.add("active");
+  }, 10);
+  evt.currentTarget.classList.add("active");
+}
+
+// Buscador simple
+document.getElementById('search-input').addEventListener('input', function(e) {
+  const term = e.target.value.toLowerCase();
+  if (term.length < 2) return;
+
+  const sections = document.querySelectorAll('.content-section p, .content-section li, .content-section h3, .rack-card');
+  sections.forEach(el => {
+    if (el.textContent.toLowerCase().includes(term)) {
+      el.style.backgroundColor = "rgba(255, 170, 0, 0.1)";
+      // Si encontramos algo, podríamos cambiar a esa pestaña, pero es mejor dejar que el usuario navegue
+    } else {
+      el.style.backgroundColor = "transparent";
+    }
+  });
+});
+</script>
+
+</body>
+</html>
