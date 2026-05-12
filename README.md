@@ -1,6 +1,6 @@
 # RACK4MASTER / Reference
 
-> **Spectral Reference Matching Processor — v7.0**  
+> **Spectral Reference Matching Processor**  
 > Intelligent EQ matching and mastering chain that runs entirely in your browser. No uploads, no accounts, no tracking.
 
 ---
