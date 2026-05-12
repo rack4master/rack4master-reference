@@ -134,16 +134,3 @@ See the **Privacy**, **Legal** and **Terms** links in the footer for full detail
 | Mobile (iOS / Android) | ⚠️ Partial — playback works, drag handles may be imprecise |
 
 ---
-
-## 📄 Licence
-
-© 2026 Rack4Master. All rights reserved.
-
-Free for personal and commercial use. You may not reverse-engineer, resell or redistribute the application itself without written permission.  
-See [Terms of Use](#) for full details.
-
----
-
-<p align="center">
-  <sub>Runs locally · No data stored · No tracking · 100% browser</sub>
-</p>
