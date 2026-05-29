@@ -7,9 +7,9 @@
 
   var STRINGS = {
     /* APP */
-    'app.sub':       { en: 'Spectral Reference Matching Processor \u2014 v7.0',
-                       es: 'Procesador de Referencia Espectral \u2014 v7.0',
-                       ca: 'Processador de Refer\u00e8ncia Espectral \u2014 v7.0' },
+    'app.sub':       { en: 'Spectral Reference Matching Processor',
+                       es: 'Procesador de Referencia Espectral',
+                       ca: 'Processador de Refer\u00e8ncia Espectral' },
     'status.ready':  { en: 'READY', es: 'LISTO', ca: 'LLEST' },
 
     /* TRACKS */
@@ -103,9 +103,9 @@
     'menu.help':     { en: 'Help',     es: 'Ayuda',  ca: 'Ajuda' },
 
     /* FOOTER */
-    'footer.rights':  { en: '\u00a9 2026 Rack4Master. All rights reserved.',
-                        es: '\u00a9 2026 Rack4Master. Todos los derechos reservados.',
-                        ca: '\u00a9 2026 Rack4Master. Tots els drets reservats.' },
+    'footer.rights':  { en: '\u00a9 2026 Rack4Master. Francesc Llorens. All rights reserved.',
+                        es: '\u00a9 2026 Rack4Master. Francesc Llorens. Todos los derechos reservados.',
+                        ca: '\u00a9 2026 Rack4Master. Francesc Llorens. Tots els drets reservats.' },
     'footer.local':   { en: 'Runs locally in your browser. No data stored or tracked.',
                         es: 'Se ejecuta localmente. No se almacenan ni rastrean datos.',
                         ca: 'S\'executa localment. No s\'emmagatzemen ni es rastregen dades.' },
