@@ -166,6 +166,19 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 .modal-title{font-family:var(--sans);font-weight:900;font-size:1.1rem;letter-spacing:.2em;color:var(--red);text-transform:uppercase;margin-bottom:10px;}
 .modal-msg{font-size:.8rem;color:var(--label);line-height:1.8;margin-bottom:24px;}
 .modal-btns{display:flex;gap:10px;justify-content:flex-end;}
+
+/* EXPORT DIALOG */
+#exportFmtDialog{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;align-items:center;justify-content:center;}
+#exportFmtBox{background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:24px 28px;min-width:280px;max-width:340px;font-family:var(--sans);color:var(--text);}
+#exportFmtBox h3{font-family:'Orbitron',sans-serif;font-size:.85rem;letter-spacing:.1em;color:var(--amber);margin:0 0 18px;}
+.efmt-label{font-size:.8rem;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.efmt-group{display:flex;gap:8px;margin-bottom:16px;}
+.efmt-opt{flex:1;padding:8px 0;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--text);font-family:var(--sans);font-size:.9rem;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s;}
+.efmt-opt.sel{background:#6c4eff;border-color:#6c4eff;color:#fff;}
+.efmt-actions{display:flex;gap:10px;margin-top:6px;}
+.efmt-cancel{flex:1;padding:9px;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--dim);font-family:var(--sans);font-weight:600;cursor:pointer;}
+.efmt-go{flex:2;padding:9px;border:none;border-radius:6px;background:#6c4eff;color:#fff;font-family:var(--sans);font-weight:700;font-size:.95rem;cursor:pointer;}
+.efmt-go:hover{filter:brightness(1.15);}
 </style>
 </head>
 <body>
@@ -174,7 +187,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 <header>
   <div class="app-brand">
     <div class="app-title">RACK4MASTER<span class="sep"> / </span><span class="ref">REFERENCE</span></div>
-    <div class="app-sub" data-i18n="app.sub">Spectral Reference Matching Processor &mdash; v7.0</div>
+    <div class="app-sub" data-i18n="app.sub">Spectral Reference Matching Processor &mdas</div>
   </div>
   <div id="status-bar">
     <div class="s-led" id="sLed"></div>
@@ -340,9 +353,30 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
   </div>
 </div>
 
+<!-- EXPORT FORMAT DIALOG -->
+<div id="exportFmtDialog" style="display:none;">
+  <div id="exportFmtBox">
+    <h3><i class="fas fa-download"></i>&nbsp; Exportar WAV</h3>
+    <div class="efmt-label">Profundidad de bits</div>
+    <div class="efmt-group">
+      <button class="efmt-opt sel" id="efmt16">16 bits</button>
+      <button class="efmt-opt" id="efmt24">24 bits</button>
+    </div>
+    <div class="efmt-label">Frecuencia de muestreo</div>
+    <div class="efmt-group">
+      <button class="efmt-opt sel" id="efmtOrig">Original</button>
+      <button class="efmt-opt" id="efmt48">48.000 Hz</button>
+    </div>
+    <div class="efmt-actions">
+      <button class="efmt-cancel" id="efmtCancel">Cancelar</button>
+      <button class="efmt-go" id="efmtGo"><i class="fas fa-download"></i> Descargar</button>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer class="app-footer">
-  <span data-i18n="footer.rights">&copy; 2026 Rack4Master. All rights reserved.</span>
+  <span data-i18n="footer.rights">&copy; 2026 Rack4Master Reference. Francesc Llorens. All rights reserved.</span>
   <span class="foot-sep">&middot;</span>
   <span style="color:var(--dim)" data-i18n="footer.local">Runs locally in your browser. No data stored or tracked.</span>
   <span class="foot-sep">&middot;</span>
@@ -364,9 +398,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
            style="vertical-align:middle;">
   </form>
 </footer>
+
 <script>
 // ============================================================
-// RACK4MASTER-REFERENCE v7
+// RACK4MASTER-REFERENCE
 // Pure 7-bit ASCII in JS. var + callbacks throughout.
 // ============================================================
 
@@ -1481,68 +1516,182 @@ playResult.addEventListener('click',function(){
 stopResult.addEventListener('click',function(){stopLive();liveOffset=0;rRes(0);});
 
 // ============================================================
-// OFFLINE RENDER + EXPORT
+// OFFLINE RENDER + EXPORT (con soporte para 24 bits y 48 kHz)
 // ============================================================
-function renderOffline(srcBuf) {
-    var sr=srcBuf.sampleRate, numCh=srcBuf.numberOfChannels, len=srcBuf.length;
-    var oc=new OfflineAudioContext(numCh,len,sr);
-    var src=oc.createBufferSource(); src.buffer=srcBuf;
+function renderOffline(srcBuf, targetSampleRate) {
+    var srcSR = srcBuf.sampleRate;
+    var outSR = (targetSampleRate && targetSampleRate > 0) ? targetSampleRate : srcSR;
+    var numCh = srcBuf.numberOfChannels;
+    var len = (outSR === srcSR) ? srcBuf.length : Math.ceil(srcBuf.duration * outSR);
+    var oc = new OfflineAudioContext(numCh, len, outSR);
+    var src = oc.createBufferSource(); src.buffer = srcBuf;
 
-    var hpf=oc.createBiquadFilter();
-    hpf.type='highpass'; hpf.frequency.value=parseFloat(sliders.hpfFreq.el.value); hpf.Q.value=parseFloat(sliders.hpfQ.el.value);
+    var hpf = oc.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = parseFloat(sliders.hpfFreq.el.value); hpf.Q.value = parseFloat(sliders.hpfQ.el.value);
 
-    var eqs=EQ_FREQS.map(function(freq,ii){
-        var f=oc.createBiquadFilter();f.type='peaking';f.frequency.value=freq;f.Q.value=EQ_QS[ii];
-        f.gain.value=parseFloat(sliders[EQ_KEYS[ii]].el.value);return f;
+    var eqs = EQ_FREQS.map(function(freq, ii) {
+        var f = oc.createBiquadFilter(); f.type = 'peaking'; f.frequency.value = freq; f.Q.value = EQ_QS[ii];
+        f.gain.value = parseFloat(sliders[EQ_KEYS[ii]].el.value); return f;
     });
-    for(var i=0;i<6;i++) eqs[i].connect(eqs[i+1]);
+    for (var i = 0; i < 6; i++) eqs[i].connect(eqs[i + 1]);
 
-    var shaper=oc.createWaveShaper();
-    shaper.curve=makeSatCurve(parseFloat(sliders.satAmt.el.value)); shaper.oversample='2x';
+    var shaper = oc.createWaveShaper();
+    shaper.curve = makeSatCurve(parseFloat(sliders.satAmt.el.value)); shaper.oversample = '2x';
 
-    var comp=oc.createDynamicsCompressor();
-    comp.threshold.value=parseFloat(sliders.compThr.el.value);comp.ratio.value=parseFloat(sliders.compRat.el.value);
-    comp.attack.value=parseFloat(sliders.compAtk.el.value)/1000;comp.release.value=parseFloat(sliders.compRel.el.value)/1000;comp.knee.value=8;
+    var comp = oc.createDynamicsCompressor();
+    comp.threshold.value = parseFloat(sliders.compThr.el.value); comp.ratio.value = parseFloat(sliders.compRat.el.value);
+    comp.attack.value = parseFloat(sliders.compAtk.el.value) / 1000; comp.release.value = parseFloat(sliders.compRel.el.value) / 1000; comp.knee.value = 8;
 
-    var mkp=oc.createGain(); mkp.gain.value=Math.pow(10,parseFloat(sliders.compMkp.el.value)/20);
-    var lim=oc.createDynamicsCompressor();
-    lim.threshold.value=parseFloat(sliders.limCeil.el.value);lim.ratio.value=20;lim.attack.value=0.001;lim.release.value=0.05;lim.knee.value=0;
-    var outG=oc.createGain(); outG.gain.value=Math.pow(10,parseFloat(sliders.outGain.el.value)/20);
+    var mkp = oc.createGain(); mkp.gain.value = Math.pow(10, parseFloat(sliders.compMkp.el.value) / 20);
+    var lim = oc.createDynamicsCompressor();
+    lim.threshold.value = parseFloat(sliders.limCeil.el.value); lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.05; lim.knee.value = 0;
+    var outG = oc.createGain(); outG.gain.value = Math.pow(10, parseFloat(sliders.outGain.el.value) / 20);
 
     hpf.connect(eqs[0]); eqs[6].connect(shaper); shaper.connect(comp); comp.connect(mkp);
 
-    if (numCh===2) {
-        var spl=oc.createChannelSplitter(2),mrg=oc.createChannelMerger(2);
-        var mG=oc.createGain(),sG=oc.createGain();
-        var inv=oc.createGain();inv.gain.value=-1;
-        var lM=oc.createGain(),rM=oc.createGain();
-        var sI=oc.createGain();sI.gain.value=-1;
-        var mLin=Math.pow(10,parseFloat(sliders.midGain.el.value)/20);
-        var sLin=Math.pow(10,parseFloat(sliders.sideGain.el.value)/20);
-        mG.gain.value=0.5*mLin; sG.gain.value=0.5*sLin;
+    if (numCh === 2) {
+        var spl = oc.createChannelSplitter(2), mrg = oc.createChannelMerger(2);
+        var mG = oc.createGain(), sG = oc.createGain();
+        var inv = oc.createGain(); inv.gain.value = -1;
+        var lM = oc.createGain(), rM = oc.createGain();
+        var sI = oc.createGain(); sI.gain.value = -1;
+        var mLin = Math.pow(10, parseFloat(sliders.midGain.el.value) / 20);
+        var sLin = Math.pow(10, parseFloat(sliders.sideGain.el.value) / 20);
+        mG.gain.value = 0.5 * mLin; sG.gain.value = 0.5 * sLin;
         mkp.connect(spl);
-        spl.connect(mG,0);spl.connect(mG,1);spl.connect(sG,0);spl.connect(inv,1);inv.connect(sG);
-        mG.connect(lM);sG.connect(lM);mG.connect(rM);sG.connect(sI);sI.connect(rM);
-        lM.connect(mrg,0,0);rM.connect(mrg,0,1);mrg.connect(lim);
-    } else { mkp.connect(lim); }
-
+        spl.connect(mG, 0); spl.connect(mG, 1); spl.connect(sG, 0); spl.connect(inv, 1); inv.connect(sG);
+        mG.connect(lM); sG.connect(lM); mG.connect(rM); sG.connect(sI); sI.connect(rM);
+        lM.connect(mrg, 0, 0); rM.connect(mrg, 0, 1); mrg.connect(lim);
+    } else {
+        mkp.connect(lim);
+    }
     lim.connect(outG); outG.connect(oc.destination);
     src.connect(hpf); src.start(0);
     return oc.startRendering();
 }
 
-downloadBtn.addEventListener('click',function(){
-    if(!targetBuffer){alert('No target audio loaded.');return;}
-    setStatus('RENDERING...',1); downloadBtn.disabled=true;
-    renderOffline(targetBuffer).then(function(proc){
-        var blob=bufferToWav(proc);
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement('a'); a.href=url; a.download='rack4master_output.wav';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setStatus('EXPORT COMPLETE',2); downloadBtn.disabled=false;
-    }).catch(function(err){setStatus('RENDER ERROR: '+err.message,0);downloadBtn.disabled=false;});
+// Export format variables
+var _exportBitDepth = 16;
+var _exportSampleRate = 0; // 0 = original
+
+function showExportDialog() {
+    var dlg = document.getElementById('exportFmtDialog');
+    if (!dlg) return;
+    // Sync button states
+    var efmt16 = document.getElementById('efmt16');
+    var efmt24 = document.getElementById('efmt24');
+    var efmtOrig = document.getElementById('efmtOrig');
+    var efmt48 = document.getElementById('efmt48');
+    if (efmt16 && efmt24 && efmtOrig && efmt48) {
+        efmt16.classList.toggle('sel', _exportBitDepth !== 24);
+        efmt24.classList.toggle('sel', _exportBitDepth === 24);
+        efmtOrig.classList.toggle('sel', _exportSampleRate !== 48000);
+        efmt48.classList.toggle('sel', _exportSampleRate === 48000);
+    }
+    dlg.style.display = 'flex';
+}
+
+function bindExportDialog() {
+    var dlg = document.getElementById('exportFmtDialog');
+    if (!dlg) return;
+    var efmt16 = document.getElementById('efmt16');
+    var efmt24 = document.getElementById('efmt24');
+    var efmtOrig = document.getElementById('efmtOrig');
+    var efmt48 = document.getElementById('efmt48');
+    var efmtCancel = document.getElementById('efmtCancel');
+    var efmtGo = document.getElementById('efmtGo');
+    if (!efmt16 || !efmt24 || !efmtOrig || !efmt48 || !efmtCancel || !efmtGo) return;
+    efmt16.onclick = function() { _exportBitDepth = 16; efmt16.classList.add('sel'); efmt24.classList.remove('sel'); };
+    efmt24.onclick = function() { _exportBitDepth = 24; efmt24.classList.add('sel'); efmt16.classList.remove('sel'); };
+    efmtOrig.onclick = function() { _exportSampleRate = 0; efmtOrig.classList.add('sel'); efmt48.classList.remove('sel'); };
+    efmt48.onclick = function() { _exportSampleRate = 48000; efmt48.classList.add('sel'); efmtOrig.classList.remove('sel'); };
+    efmtCancel.onclick = function() { dlg.style.display = 'none'; };
+    dlg.onclick = function(e) { if (e.target === dlg) dlg.style.display = 'none'; };
+    efmtGo.onclick = function() {
+        dlg.style.display = 'none';
+        doExport(_exportBitDepth, _exportSampleRate);
+    };
+}
+
+downloadBtn.addEventListener('click', function() {
+    if (!targetBuffer) { alert('No target audio loaded.'); return; }
+    bindExportDialog();  // ensure listeners are attached
+    showExportDialog();
 });
+
+function doExport(bitDepth, sampleRate) {
+    setStatus('RENDERING...', 1);
+    downloadBtn.disabled = true;
+    var srOpt = (sampleRate === 48000) ? 48000 : null;
+    renderOffline(targetBuffer, srOpt).then(function(proc) {
+        var blob = bufferToWav(proc, bitDepth);
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        var label = bitDepth + 'bit' + (srOpt ? '_48k' : '');
+        a.download = 'rack4master_' + label + '.wav';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus('EXPORT COMPLETE (' + bitDepth + ' bits' + (srOpt ? ' / 48kHz' : '') + ')', 2);
+        downloadBtn.disabled = false;
+    }).catch(function(err) {
+        setStatus('RENDER ERROR: ' + err.message, 0);
+        downloadBtn.disabled = false;
+    });
+}
+
+function bufferToWav(buf, bitDepth) {
+    bitDepth = (bitDepth === 24) ? 24 : 16;
+    var numCh = buf.numberOfChannels, sr = buf.sampleRate, len = buf.length;
+    var bytesPerSample = (bitDepth === 24) ? 3 : 2;
+    var blockAlign = numCh * bytesPerSample;
+    var dataSize = len * blockAlign;
+    var wav = new ArrayBuffer(44 + dataSize);
+    var v = new DataView(wav);
+    var pos = 0;
+    function writeString(s) {
+        for (var i = 0; i < s.length; i++) v.setUint8(pos + i, s.charCodeAt(i));
+        pos += s.length;
+    }
+    function writeU32(vv) { v.setUint32(pos, vv, true); pos += 4; }
+    function writeU16(vv) { v.setUint16(pos, vv, true); pos += 2; }
+    writeString('RIFF');
+    writeU32(36 + dataSize);
+    writeString('WAVE');
+    writeString('fmt ');
+    writeU32(16);
+    writeU16(1);
+    writeU16(numCh);
+    writeU32(sr);
+    writeU32(sr * blockAlign);
+    writeU16(blockAlign);
+    writeU16(bitDepth);
+    writeString('data');
+    writeU32(dataSize);
+    var off = pos;
+    for (var i = 0; i < len; i++) {
+        for (var ch = 0; ch < numCh; ch++) {
+            var s = Math.max(-1, Math.min(1, buf.getChannelData(ch)[i]));
+            if (bitDepth === 24) {
+                var v24;
+                if (s < 0) v24 = Math.round(s * 8388608);
+                else v24 = Math.round(s * 8388607);
+                v24 = Math.max(-8388608, Math.min(8388607, v24));
+                v.setUint8(off,      v24 & 0xFF);
+                v.setUint8(off + 1, (v24 >> 8) & 0xFF);
+                v.setUint8(off + 2, (v24 >> 16) & 0xFF);
+                off += 3;
+            } else {
+                var v16 = s < 0 ? Math.round(s * 32768) : Math.round(s * 32767);
+                v.setInt16(off, v16, true);
+                off += 2;
+            }
+        }
+    }
+    return new Blob([wav], { type: 'audio/wav' });
+}
 
 // ============================================================
 // FULL RESET — with confirmation modal
@@ -1622,27 +1771,7 @@ loopTargetBtn.addEventListener('click', function() {
     }
 });
 
-// ============================================================
-// WAV ENCODER (16-bit PCM)
-// ============================================================
-function bufferToWav(buf){
-    var numCh=buf.numberOfChannels,sr=buf.sampleRate,len=buf.length,bytes=len*numCh*2;
-    var wav=new ArrayBuffer(44+bytes),v=new DataView(wav);
-    var str=function(o,s){for(var i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
-    str(0,'RIFF');v.setUint32(4,36+bytes,true);str(8,'WAVE');str(12,'fmt ');
-    v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,numCh,true);
-    v.setUint32(24,sr,true);v.setUint32(28,sr*numCh*2,true);
-    v.setUint16(32,numCh*2,true);v.setUint16(34,16,true);
-    str(36,'data');v.setUint32(40,bytes,true);
-    var off=44;
-    for(var i=0;i<len;i++)for(var ch=0;ch<numCh;ch++){
-        var s=Math.max(-1,Math.min(1,buf.getChannelData(ch)[i]));
-        v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;
-    }
-    return new Blob([wav],{type:'audio/wav'});
-}
 </script>
-
 <script src="i18n.js"></script>
 <script>
 // ============================================================
