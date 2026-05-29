@@ -376,7 +376,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 
 <!-- FOOTER -->
 <footer class="app-footer">
-  <span data-i18n="footer.rights">&copy; 2026 Rack4Master Reference. Francesc Llorens. All rights reserved.</span>
+  <span data-i18n="footer.rights">&copy; 2026 Rack4Master. Francesc Llorens. All rights reserved.</span>
   <span class="foot-sep">&middot;</span>
   <span style="color:var(--dim)" data-i18n="footer.local">Runs locally in your browser. No data stored or tracked.</span>
   <span class="foot-sep">&middot;</span>
@@ -408,6 +408,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 var audioCtx     = null;
 var refBuffer    = null;
 var targetBuffer = null;
+var currentTargetFileName = ''; // nombre base sin extensión
 
 // Waveform peak caches
 var refPeaks     = null;
@@ -842,6 +843,7 @@ function loadAudio(file, isRef) {
                 }, 60);
             } else {
                 targetBuffer = buf;
+                currentTargetFileName = file.name.replace(/\.[^.]+$/, ''); // guardar nombre base sin extensión
                 targetPeaks = computePeaks(buf, canvasTarget.offsetWidth||800);
                 rTgt(0);
                 dropTarget.classList.add('loaded');
@@ -1628,8 +1630,10 @@ function doExport(bitDepth, sampleRate) {
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
+        // Nombre del archivo: nombre del target + etiqueta de formato
+        var baseName = currentTargetFileName && currentTargetFileName.length ? currentTargetFileName : 'rack4master';
         var label = bitDepth + 'bit' + (srOpt ? '_48k' : '');
-        a.download = 'rack4master_' + label + '.wav';
+        a.download = baseName + '_' + label + '.wav';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -1701,6 +1705,7 @@ function doFullReset() {
     simpleStop(refPlayer,ledRef,playRef,true);
     simpleStop(tgtPlayer,ledTarget,playTarget,true);
     refBuffer=null; targetBuffer=null;
+    currentTargetFileName = '';
     refPeaks=null; targetPeaks=null; resultPeaks=null;
     refSpecData=null; targetSpecData=null; resultSpecData=null;
     refPlayer.offset=0; tgtPlayer.offset=0; liveOffset=0;
