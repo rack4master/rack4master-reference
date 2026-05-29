@@ -70,7 +70,7 @@ The **Spectral Analysis Report** panel (collapsible) shows the per-band delta be
 Use the **Processed Output** section to audition the live DSP result in real time.
 
 ### 5 — Export
-Click **EXPORT WAV** to render and download the processed audio as a 16-bit PCM WAV file.
+Click **EXPORT WAV** to render and download the processed audio as a 16-bit or 24-bit PCM WAV file.
 
 ---
 
