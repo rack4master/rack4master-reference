@@ -116,6 +116,14 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
+/* VU METERS */
+.vu-strip{padding:10px 0 4px;display:flex;flex-direction:column;gap:6px;}
+.vu-row{display:flex;align-items:center;gap:9px;}
+.vu-lbl{font-family:var(--sans);font-size:.68rem;letter-spacing:.12em;color:var(--dim);width:26px;text-align:right;flex-shrink:0;text-transform:uppercase;}
+.vu-bar-wrap{flex:1;background:#060609;border:1px solid var(--border);border-radius:1px;overflow:hidden;}
+.vu-bar-wrap canvas{display:block;width:100%;height:11px;}
+.vu-val{font-family:var(--mono);font-size:.7rem;color:var(--bright);width:58px;text-align:right;flex-shrink:0;}
+
 /* COLLAPSIBLE PANEL */
 .rack-collapsible .rack-header{cursor:pointer;user-select:none;transition:background .15s;}
 .rack-collapsible .rack-header:hover{background:#181924;}
@@ -187,7 +195,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 <header>
   <div class="app-brand">
     <div class="app-title">RACK4MASTER<span class="sep"> / </span><span class="ref">REFERENCE</span></div>
-    <div class="app-sub" data-i18n="app.sub">Spectral Reference Matching Processor &mdas</div>
+    <div class="app-sub" data-i18n="app.sub">Spectral Reference Matching Processor &mdash;</div>
   </div>
   <div id="status-bar">
     <div class="s-led" id="sLed"></div>
@@ -262,6 +270,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
       <button class="btn btn-green" id="playResult">&#9654; <span data-i18n="btn.play">PLAY</span></button>
       <button class="btn btn-gray"  id="stopResult">&#9632; <span data-i18n="btn.stop">STOP</span></button>
     </div>
+    <div class="vu-strip" id="vuStrip" style="display:none">
+      <div class="vu-row"><span class="vu-lbl">IN</span><div class="vu-bar-wrap"><canvas id="vuIn" height="11"></canvas></div><span class="vu-val" id="vuInVal">&mdash;</span></div>
+      <div class="vu-row"><span class="vu-lbl">GR</span><div class="vu-bar-wrap"><canvas id="vuGr" height="11"></canvas></div><span class="vu-val" id="vuGrVal">&mdash;</span></div>
+      <div class="vu-row"><span class="vu-lbl">OUT</span><div class="vu-bar-wrap"><canvas id="vuOut" height="11"></canvas></div><span class="vu-val" id="vuOutVal">&mdash;</span></div>
+    </div>
   </div>
 </div>
 
@@ -280,19 +293,19 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 
 <!-- FX RACK -->
 <div class="rack rack-top-fx" id="fxSection" style="display:none">
-  <div class="rack-header" data-i18n="panel.fx">PROCESSING CHAIN &nbsp;|&nbsp; HPF &rarr; EQ7 &rarr; SATURATION &rarr; DYNAMICS &rarr; M/S &rarr; LIMITER &rarr; OUT</div>
+  <div class="rack-header" data-i18n="panel.fx">PROCESSING CHAIN &nbsp;|&nbsp; HPF&#178; &rarr; EQ7(shelf+peak) &rarr; SATURATION(4x) &rarr; DYNAMICS &rarr; M/S &rarr; LIMITER &rarr; OUT</div>
   <div class="rack-body">
     <div class="modules-row">
 
       <div class="module">
         <div class="mod-title" data-i18n="mod.eq">7-Band Parametric EQ</div>
-        <div class="slider-row"><label data-i18n="eq.sub">SUB &ndash; 50 Hz</label>    <input type="range" id="eq50"  min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq50v"> +0.0 dB</span></div>
+        <div class="slider-row"><label data-i18n="eq.sub">SUB &ndash; 50 Hz &#9111;</label>    <input type="range" id="eq50"  min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq50v"> +0.0 dB</span></div>
         <div class="slider-row"><label data-i18n="eq.bass">BASS &ndash; 100 Hz</label>  <input type="range" id="eq100" min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq100v">+0.0 dB</span></div>
         <div class="slider-row"><label data-i18n="eq.lomid">LO-MID &ndash; 300 Hz</label><input type="range" id="eq300" min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq300v">+0.0 dB</span></div>
         <div class="slider-row"><label data-i18n="eq.mid">MID &ndash; 1 kHz</label>    <input type="range" id="eq1k"  min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq1kv"> +0.0 dB</span></div>
         <div class="slider-row"><label data-i18n="eq.himid">HI-MID &ndash; 3 kHz</label> <input type="range" id="eq3k"  min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq3kv"> +0.0 dB</span></div>
         <div class="slider-row"><label data-i18n="eq.presence">PRESENCE &ndash; 8 kHz</label><input type="range" id="eq8k"  min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq8kv"> +0.0 dB</span></div>
-        <div class="slider-row"><label data-i18n="eq.air">AIR &ndash; 16 kHz</label>   <input type="range" id="eq16k" min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq16kv">+0.0 dB</span></div>
+        <div class="slider-row"><label data-i18n="eq.air">AIR &ndash; 16 kHz &#9111;</label>   <input type="range" id="eq16k" min="-12" max="12" value="0" step="0.1"><span class="sval" id="eq16kv">+0.0 dB</span></div>
       </div>
 
       <div class="module">
@@ -356,20 +369,20 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 <!-- EXPORT FORMAT DIALOG -->
 <div id="exportFmtDialog" style="display:none;">
   <div id="exportFmtBox">
-    <h3><i class="fas fa-download"></i>&nbsp; Exportar WAV</h3>
-    <div class="efmt-label">Profundidad de bits</div>
+    <h3><svg style="width:14px;height:14px;vertical-align:-2px;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg><span data-i18n="export.title">Export WAV</span></h3>
+    <div class="efmt-label" data-i18n="export.bitdepth">Bit depth</div>
     <div class="efmt-group">
-      <button class="efmt-opt sel" id="efmt16">16 bits</button>
-      <button class="efmt-opt" id="efmt24">24 bits</button>
+      <button class="efmt-opt sel" id="efmt16">16 bit</button>
+      <button class="efmt-opt" id="efmt24">24 bit</button>
     </div>
-    <div class="efmt-label">Frecuencia de muestreo</div>
+    <div class="efmt-label" data-i18n="export.samplerate">Sample rate</div>
     <div class="efmt-group">
-      <button class="efmt-opt sel" id="efmtOrig">Original</button>
-      <button class="efmt-opt" id="efmt48">48.000 Hz</button>
+      <button class="efmt-opt sel" id="efmtOrig" data-i18n="export.original">Original</button>
+      <button class="efmt-opt" id="efmt48">48 000 Hz</button>
     </div>
     <div class="efmt-actions">
-      <button class="efmt-cancel" id="efmtCancel">Cancelar</button>
-      <button class="efmt-go" id="efmtGo"><i class="fas fa-download"></i> Descargar</button>
+      <button class="efmt-cancel" id="efmtCancel" data-i18n="export.cancel">Cancel</button>
+      <button class="efmt-go" id="efmtGo"><svg style="width:13px;height:13px;vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg><span data-i18n="export.download">Download</span></button>
     </div>
   </div>
 </div>
@@ -735,12 +748,17 @@ function computeResultSpecPreview() {
 // WAVEFORM CANVAS
 // ============================================================
 function computePeaks(buf, W) {
-    var ch=buf.getChannelData(0), len=buf.length;
+    var len=buf.length, nCh=buf.numberOfChannels;
     var mx=new Float32Array(W), mn=new Float32Array(W);
     for (var x=0; x<W; x++) {
         var s=Math.floor(x/W*len), e=Math.min(Math.floor((x+1)/W*len),len);
         var hi=0, lo=0;
-        for (var i=s; i<e; i++) { if(ch[i]>hi)hi=ch[i]; if(ch[i]<lo)lo=ch[i]; }
+        for (var i=s; i<e; i++) {
+            var v=0;
+            for (var ch=0;ch<nCh;ch++) v+=buf.getChannelData(ch)[i];
+            v/=nCh;
+            if(v>hi)hi=v; if(v<lo)lo=v;
+        }
         mx[x]=hi; mn[x]=lo;
     }
     return {max:mx,min:mn};
@@ -801,9 +819,12 @@ function rTgt(p)  { drawWave(canvasTarget, targetPeaks, p, '#4499ff','#051c38', 
 function rRes(p)  { drawWave(canvasResult, resultPeaks, p, '#00ffa3','#003320'); }
 
 window.addEventListener('resize', function() {
-    if(refPeaks)    rRef(0);
-    if(targetPeaks) rTgt(0);
-    if(resultPeaks) rRes(0);
+    var rp = refPlayer.playing&&audioCtx&&refBuffer ? Math.min(1,(audioCtx.currentTime-refPlayer.startTime)/refBuffer.duration) : 0;
+    var tp = tgtPlayer.playing&&audioCtx&&targetBuffer ? Math.min(1,(audioCtx.currentTime-tgtPlayer.startTime)/targetBuffer.duration) : 0;
+    var lp = livePlaying&&audioCtx&&targetBuffer ? Math.min(1,(audioCtx.currentTime-liveStart)/targetBuffer.duration) : 0;
+    if(refPeaks)    rRef(rp);
+    if(targetPeaks) rTgt(tp);
+    if(resultPeaks) rRes(lp);
     redrawRefSpec(); redrawTargetSpec(); redrawResultSpec(); drawComparativeSpec();
 });
 
@@ -1055,7 +1076,8 @@ function analyzeAudio(refBuf, tgtBuf) {
         return -0.691+10*Math.log10(hs/p.length+1e-24);
     }
     function lra(s){
-        var bl=Math.floor(SR*0.4),st=Math.floor(bl*0.25),bks=[];
+        // EBU R128: 3-second blocks, 75% overlap (hop = 0.75s)
+        var bl=Math.floor(SR*3),st=Math.floor(SR*0.75),bks=[];
         for(var i=0;i+bl<=s.length;i+=st){var ss=0;for(var j=i;j<i+bl;j++)ss+=s[j]*s[j];var lk=10*Math.log10(ss/bl+1e-24);if(lk>-70)bks.push(lk);}
         if(bks.length<4)return 0;
         bks.sort(function(a,b){return a-b;});
@@ -1222,7 +1244,7 @@ function renderAnalysis(p) {
 
     h+='<tr class="cat-row"><td colspan="5">FILTER &amp; HARMONICS</td></tr>';
     h+='<tr><td>HPF Frequency</td><td colspan="3" style="color:var(--dim)">sub-bass energy delta (ref vs target)</td><td><span class="vu">'+p.hpfFreq+' Hz</span></td></tr>';
-    var satCl=p.saturation>20?'vw':p.saturation>5?'vu':'vu';
+    var satCl=p.saturation>40?'vn':p.saturation>15?'vw':'vu';
     h+='<tr><td>Saturation</td><td colspan="3" style="color:var(--dim)">spectral flatness delta</td><td><span class="'+satCl+'">'+p.saturation+'%</span></td></tr>';
 
     h+='<tr class="cat-row"><td colspan="5">STEREO IMAGE</td></tr>';
@@ -1257,7 +1279,7 @@ function renderAnalysis(p) {
     h+='</tbody></table>';
     h+='<p class="analysis-note">'+
        (p.useM?'EQ via Meyda.js FFT 2048, 30 ISO 1/3-oct bands -> 7 sliders. ':'EQ via IIR biquad. ')+
-       'LUFS: K-weighting approx. (EBU R128). True Peak: cubic 4x. LRA: 10th-90th pct. of 400ms gated blocks. '+
+       'LUFS: K-weighting approx. (EBU R128). True Peak: cubic 4x. LRA: 10th-90th pct. of 3s gated blocks (EBU R128). '+
        'HPF: derived from sub-bass energy delta. Saturation: spectral flatness delta. Phase: +1=mono, 0=wide, negative=polarity.</p>';
     analysisContent.innerHTML = h;
 }
@@ -1352,32 +1374,122 @@ analyzeBtn.addEventListener('click', function() {
 });
 
 // ============================================================
-// LIVE DSP CHAIN: HPF -> EQ7 -> Saturation -> Comp -> M/S -> Lim -> Out -> Analyser -> Fade
+// VU METERS — IN / GR / OUT
+// ============================================================
+function analyserPeakDb(analyser) {
+    if (!analyser) return -90;
+    var data = new Float32Array(analyser.fftSize);
+    analyser.getFloatTimeDomainData(data);
+    var pk = 0;
+    for (var i = 0; i < data.length; i++) { var a = Math.abs(data[i]); if (a > pk) pk = a; }
+    return 20 * Math.log10(pk + 1e-12);
+}
+
+// Smoothed peak holders for ballistic decay
+var _vuInPeak = -90, _vuOutPeak = -90;
+
+function drawVuBar(canvas, dbVal, mode) {
+    // mode: 'level' (IN/OUT) | 'gr' (gain reduction, positive = reduction amount)
+    var W = canvas.offsetWidth || 500, H = canvas.height;
+    if (canvas.width !== W) canvas.width = W;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#060609'; ctx.fillRect(0, 0, W, H);
+    var pct, col;
+    if (mode === 'gr') {
+        var gr = Math.min(20, Math.max(0, -dbVal));
+        pct = gr / 20;
+        col = '#f0c040';
+    } else {
+        var db = Math.max(-72, Math.min(0, dbVal));
+        pct = (db + 72) / 72;
+        col = db > -3 ? '#ff3355' : db > -9 ? '#f0c040' : '#00ffa3';
+    }
+    var bW = Math.round(pct * W);
+    if (bW > 0) { ctx.fillStyle = col; ctx.fillRect(0, 2, bW, H - 4); }
+    // Reference markers at -6 and -3 dBFS (level) or 6/12 dB GR
+    var m1 = Math.round((mode === 'gr' ? 6/20 : 66/72) * W);
+    var m2 = Math.round((mode === 'gr' ? 12/20 : 69/72) * W);
+    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    ctx.fillRect(m1, 0, 1, H); ctx.fillRect(m2, 0, 1, H);
+}
+
+function updateVuMeters() {
+    var cIn  = document.getElementById('vuIn');
+    var cGr  = document.getElementById('vuGr');
+    var cOut = document.getElementById('vuOut');
+    var vIn  = document.getElementById('vuInVal');
+    var vGr  = document.getElementById('vuGrVal');
+    var vOut = document.getElementById('vuOutVal');
+    if (!cIn || !liveNodes.active) return;
+
+    var rawIn  = analyserPeakDb(liveNodes.inputAnalyser);
+    var rawOut = analyserPeakDb(liveNodes.analyser);
+    var gr     = liveNodes.comp ? liveNodes.comp.reduction : 0;
+
+    // Ballistic: fast attack, 12 dB/s decay
+    var decay = 12 / 60;
+    _vuInPeak  = rawIn  > _vuInPeak  ? rawIn  : Math.max(rawIn,  _vuInPeak  - decay);
+    _vuOutPeak = rawOut > _vuOutPeak ? rawOut : Math.max(rawOut, _vuOutPeak - decay);
+
+    drawVuBar(cIn,  _vuInPeak,  'level');
+    drawVuBar(cGr,  gr,         'gr');
+    drawVuBar(cOut, _vuOutPeak, 'level');
+
+    var fmt = function(v) { return v > -80 ? (v >= 0 ? '+' : '') + v.toFixed(1) + ' dB' : '—'; };
+    vIn.textContent  = fmt(_vuInPeak);
+    vGr.textContent  = gr < -0.2 ? gr.toFixed(1) + ' dB' : '—';
+    vOut.textContent = fmt(_vuOutPeak);
+}
+
+function clearVuMeters() {
+    _vuInPeak = -90; _vuOutPeak = -90;
+    ['vuIn','vuGr','vuOut'].forEach(function(id) {
+        var c = document.getElementById(id);
+        if (c) { var cx = c.getContext('2d'); cx.fillStyle='#060609'; cx.fillRect(0,0,c.width,c.height); }
+    });
+    var ids = ['vuInVal','vuGrVal','vuOutVal'];
+    ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='\u2014'; });
+}
+
+// ============================================================
+// LIVE DSP CHAIN: HPF(x2) -> EQ7 -> Saturation -> Comp -> M/S -> Lim -> Out -> Analyser -> Fade
 // ============================================================
 function buildLiveChain() {
     if (!audioCtx||!targetBuffer) return;
     destroyLive();
     var ctx=audioCtx, numCh=targetBuffer.numberOfChannels, n=liveNodes;
 
-    // HPF
+    // Input analyser (taps raw signal for VU IN meter)
+    n.inputAnalyser = ctx.createAnalyser();
+    n.inputAnalyser.fftSize = 2048;
+    n.inputAnalyser.smoothingTimeConstant = 0.55;
+
+    // HPF — order 4 (two cascaded 2nd-order highpass = 24 dB/oct)
     n.hpf = ctx.createBiquadFilter();
     n.hpf.type = 'highpass';
     n.hpf.frequency.value = parseFloat(sliders.hpfFreq.el.value);
     n.hpf.Q.value         = parseFloat(sliders.hpfQ.el.value);
+    n.hpf2 = ctx.createBiquadFilter();
+    n.hpf2.type = 'highpass';
+    n.hpf2.frequency.value = parseFloat(sliders.hpfFreq.el.value);
+    n.hpf2.Q.value         = parseFloat(sliders.hpfQ.el.value);
 
-    // 7-band EQ
+    // 7-band EQ — low/high extremes as shelves for musical response
     n.eqNodes = EQ_FREQS.map(function(freq,ii){
         var f=ctx.createBiquadFilter();
-        f.type='peaking';f.frequency.value=freq;f.Q.value=EQ_QS[ii];
+        if(ii===0) f.type='lowshelf';
+        else if(ii===6) f.type='highshelf';
+        else f.type='peaking';
+        f.frequency.value=freq; f.Q.value=EQ_QS[ii];
         f.gain.value=parseFloat(sliders[EQ_KEYS[ii]].el.value);
         return f;
     });
     for(var i=0;i<6;i++) n.eqNodes[i].connect(n.eqNodes[i+1]);
 
-    // Saturation (WaveShaperNode)
+    // Saturation (WaveShaperNode — 4x oversampling for lower aliasing)
     n.shaper = ctx.createWaveShaper();
     n.shaper.curve = makeSatCurve(parseFloat(sliders.satAmt.el.value));
-    n.shaper.oversample = '2x';
+    n.shaper.oversample = '4x';
 
     // Compressor
     n.comp = ctx.createDynamicsCompressor(); n.comp.knee.value = 8;
@@ -1394,14 +1506,14 @@ function buildLiveChain() {
         n.sI=ctx.createGain(); n.sI.gain.value=-1;
     }
 
-    // Limiter
+    // Limiter — 150ms release avoids pumping on dense transients
     n.lim=ctx.createDynamicsCompressor();
-    n.lim.ratio.value=20; n.lim.attack.value=0.001; n.lim.release.value=0.05; n.lim.knee.value=0;
+    n.lim.ratio.value=20; n.lim.attack.value=0.001; n.lim.release.value=0.15; n.lim.knee.value=0;
 
     // Output gain
     n.outG = ctx.createGain();
 
-    // Analyser (for real-time spectrum)
+    // Analyser (output — real-time spectrum + VU OUT)
     n.analyser = ctx.createAnalyser();
     n.analyser.fftSize = 2048;
     n.analyser.smoothingTimeConstant = 0.82;
@@ -1409,8 +1521,9 @@ function buildLiveChain() {
     // Fade gain (click-free)
     n.fadeGain = ctx.createGain(); n.fadeGain.gain.value = 0;
 
-    // Wire chain: HPF -> EQ[0..6] -> Shaper -> Comp -> Mkp -> [M/S] -> Lim -> OutG -> Analyser -> FadeGain -> Dest
-    n.hpf.connect(n.eqNodes[0]);
+    // Wire chain: HPF -> HPF2 -> EQ[0..6] -> Shaper -> Comp -> Mkp -> [M/S] -> Lim -> OutG -> Analyser -> FadeGain -> Dest
+    n.hpf.connect(n.hpf2);
+    n.hpf2.connect(n.eqNodes[0]);
     n.eqNodes[6].connect(n.shaper);
     n.shaper.connect(n.comp);
     n.comp.connect(n.mkp);
@@ -1440,6 +1553,7 @@ function updateLiveEffects() {
     var n=liveNodes;
     n.hpf.frequency.value = parseFloat(sliders.hpfFreq.el.value);
     n.hpf.Q.value         = parseFloat(sliders.hpfQ.el.value);
+    if(n.hpf2) { n.hpf2.frequency.value = n.hpf.frequency.value; n.hpf2.Q.value = n.hpf.Q.value; }
     for(var i=0;i<EQ_KEYS.length;i++) if(n.eqNodes&&n.eqNodes[i]) n.eqNodes[i].gain.value=parseFloat(sliders[EQ_KEYS[i]].el.value);
     if(n.shaper) n.shaper.curve = makeSatCurve(parseFloat(sliders.satAmt.el.value));
     n.comp.threshold.value = parseFloat(sliders.compThr.el.value);
@@ -1459,7 +1573,7 @@ function updateLiveEffects() {
 
 function destroyLive() {
     var n=liveNodes;
-    ['hpf','comp','mkp','shaper','spl','mrg','midG','sideG','inv','lM','rM','sI','lim','outG','analyser','fadeGain'].forEach(function(k){
+    ['inputAnalyser','hpf','hpf2','comp','mkp','shaper','spl','mrg','midG','sideG','inv','lM','rM','sI','lim','outG','analyser','fadeGain'].forEach(function(k){
         if(n[k]){try{n[k].disconnect();}catch(e){}n[k]=null;}
     });
     if(n.eqNodes){n.eqNodes.forEach(function(f){try{f.disconnect();}catch(e){}});n.eqNodes=null;}
@@ -1473,6 +1587,8 @@ function startLive(off, keep) {
     if(syncRafId){cancelAnimationFrame(syncRafId);syncRafId=null;}
     if(!keep||!liveNodes.active) buildLiveChain();
     var src=audioCtx.createBufferSource(); src.buffer=targetBuffer;
+    // Tap input BEFORE chain for VU IN meter
+    src.connect(liveNodes.inputAnalyser);
     src.connect(liveNodes.hpf);
     var dur=targetBuffer.duration;
     off=Math.max(0,Math.min(off,dur-0.01));
@@ -1483,17 +1599,20 @@ function startLive(off, keep) {
     src.start(0,off);
     liveNodes.source=src; liveStart=audioCtx.currentTime-off; livePlaying=true; liveOffset=off;
     playResult.textContent='\u23F8 PAUSE'; ledResult.className='led playing';
+    var vuStrip=document.getElementById('vuStrip');
+    if(vuStrip) vuStrip.style.display='';
     function sync(){
         if(!livePlaying)return;
         var prog=(audioCtx.currentTime-liveStart)/dur;
-        if(prog>=1){stopLive();return;}
+        if(prog>=1){liveOffset=0;stopLive();return;}
         rRes(prog);
         redrawResultSpec();
         drawComparativeSpec();
+        updateVuMeters();
         syncRafId=requestAnimationFrame(sync);
     }
     syncRafId=requestAnimationFrame(sync);
-    src.onended=function(){if(livePlaying&&liveNodes.source===src)stopLive();};
+    src.onended=function(){if(livePlaying&&liveNodes.source===src){liveOffset=0;stopLive();}};
 }
 
 function stopLive() {
@@ -1507,6 +1626,7 @@ function stopLive() {
     if(s3){s3.onended=null;setTimeout(function(){try{s3.stop();}catch(e){}},16);liveNodes.source=null;}
     if(syncRafId){cancelAnimationFrame(syncRafId);syncRafId=null;}
     livePlaying=false; playResult.textContent='\u25B6 PLAY'; ledResult.className='led loaded';
+    clearVuMeters();
     // Redraw spectra in static mode
     redrawResultSpec(); drawComparativeSpec();
 }
@@ -1528,28 +1648,39 @@ function renderOffline(srcBuf, targetSampleRate) {
     var oc = new OfflineAudioContext(numCh, len, outSR);
     var src = oc.createBufferSource(); src.buffer = srcBuf;
 
+    // HPF — order 4 (two cascaded 2nd-order = 24 dB/oct)
     var hpf = oc.createBiquadFilter();
     hpf.type = 'highpass'; hpf.frequency.value = parseFloat(sliders.hpfFreq.el.value); hpf.Q.value = parseFloat(sliders.hpfQ.el.value);
+    var hpf2 = oc.createBiquadFilter();
+    hpf2.type = 'highpass'; hpf2.frequency.value = hpf.frequency.value; hpf2.Q.value = hpf.Q.value;
 
+    // 7-band EQ — shelf filters at extremes
     var eqs = EQ_FREQS.map(function(freq, ii) {
-        var f = oc.createBiquadFilter(); f.type = 'peaking'; f.frequency.value = freq; f.Q.value = EQ_QS[ii];
+        var f = oc.createBiquadFilter();
+        if(ii===0) f.type='lowshelf';
+        else if(ii===6) f.type='highshelf';
+        else f.type='peaking';
+        f.frequency.value = freq; f.Q.value = EQ_QS[ii];
         f.gain.value = parseFloat(sliders[EQ_KEYS[ii]].el.value); return f;
     });
     for (var i = 0; i < 6; i++) eqs[i].connect(eqs[i + 1]);
 
+    // Saturation — 4x oversampling
     var shaper = oc.createWaveShaper();
-    shaper.curve = makeSatCurve(parseFloat(sliders.satAmt.el.value)); shaper.oversample = '2x';
+    shaper.curve = makeSatCurve(parseFloat(sliders.satAmt.el.value)); shaper.oversample = '4x';
 
     var comp = oc.createDynamicsCompressor();
     comp.threshold.value = parseFloat(sliders.compThr.el.value); comp.ratio.value = parseFloat(sliders.compRat.el.value);
     comp.attack.value = parseFloat(sliders.compAtk.el.value) / 1000; comp.release.value = parseFloat(sliders.compRel.el.value) / 1000; comp.knee.value = 8;
 
     var mkp = oc.createGain(); mkp.gain.value = Math.pow(10, parseFloat(sliders.compMkp.el.value) / 20);
+
+    // Limiter — 150ms release
     var lim = oc.createDynamicsCompressor();
-    lim.threshold.value = parseFloat(sliders.limCeil.el.value); lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.05; lim.knee.value = 0;
+    lim.threshold.value = parseFloat(sliders.limCeil.el.value); lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.15; lim.knee.value = 0;
     var outG = oc.createGain(); outG.gain.value = Math.pow(10, parseFloat(sliders.outGain.el.value) / 20);
 
-    hpf.connect(eqs[0]); eqs[6].connect(shaper); shaper.connect(comp); comp.connect(mkp);
+    hpf.connect(hpf2); hpf2.connect(eqs[0]); eqs[6].connect(shaper); shaper.connect(comp); comp.connect(mkp);
 
     if (numCh === 2) {
         var spl = oc.createChannelSplitter(2), mrg = oc.createChannelMerger(2);
@@ -1615,9 +1746,10 @@ function bindExportDialog() {
     };
 }
 
+bindExportDialog(); // bind once on init
+
 downloadBtn.addEventListener('click', function() {
     if (!targetBuffer) { alert('No target audio loaded.'); return; }
-    bindExportDialog();  // ensure listeners are attached
     showExportDialog();
 });
 
