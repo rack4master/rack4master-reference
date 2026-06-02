@@ -93,7 +93,7 @@ footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);paddi
   <div id="quickstart" class="content-section active">
     <h2>Guía de Inicio Rápido</h2>
     <p>RACK4MASTER-REFERENCE es una herramienta avanzada de masterización por referencia diseñada para igualar la huella espectral de tu pista con una de referencia profesional.</p>
-    
+
     <div class="step-box">
       <div class="step-num">1</div>
       <div class="step-text">
@@ -118,14 +118,21 @@ footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);paddi
     <div class="step-box">
       <div class="step-num">4</div>
       <div class="step-text">
-        <p><span class="highlight">Ajusta y Masteriza:</span> Utiliza los módulos de EQ y Limitador para compensar las diferencias marcadas en la tabla. Observa el espectro resultante en tiempo real.</p>
+        <p><span class="highlight">Ajusta y Masteriza:</span> Utiliza los módulos de HPF, EQ de 7 bandas, Saturación, Compresor y Limitador para compensar las diferencias marcadas en la tabla. Observa el espectro resultante y los VU meters en tiempo real.</p>
       </div>
     </div>
 
     <div class="step-box">
       <div class="step-num">5</div>
       <div class="step-text">
-        <p><span class="highlight">Exporta:</span> Una vez satisfecho, utiliza el botón <span class="code-inline">DOWNLOAD MASTER</span> para obtener tu archivo procesado.</p>
+        <p><span class="highlight">Compara A/B:</span> Utiliza el botón <span class="code-inline">A/B</span> o la tecla <span class="code-inline">W</span> para alternar entre la señal original y la procesada, asegurando que tus ajustes mejoran el sonido.</p>
+      </div>
+    </div>
+
+    <div class="step-box">
+      <div class="step-num">6</div>
+      <div class="step-text">
+        <p><span class="highlight">Exporta:</span> Una vez satisfecho, utiliza el botón <span class="code-inline">DOWNLOAD MASTER</span> para obtener tu archivo procesado en alta calidad (hasta 24-bit/48kHz).</p>
       </div>
     </div>
   </div>
@@ -133,7 +140,7 @@ footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);paddi
   <!-- SECCIÓN: INTERFAZ -->
   <div id="interface" class="content-section">
     <h2>Exploración de la Interfaz</h2>
-    
+
     <div class="rack-card">
       <h4 class="ref-dot">Reference Rack</h4>
       <p>Muestra la forma de onda y el espectro de la pista de referencia. Los datos de esta pista son la base para el cálculo de diferencias.</p>
@@ -148,14 +155,41 @@ footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);paddi
       <h4 class="fx-dot">FX Modules</h4>
       <ul>
         <li><span class="highlight">HPF:</span> Filtro de paso alto para limpiar sub-frecuencias innecesarias.</li>
-        <li><span class="highlight">EQ de 8 Bandas:</span> Bandas fijas optimizadas para corrección tonal (60Hz a 16kHz).</li>
-        <li><span class="highlight">Limiter:</span> Control de dinámica final con Ceiling y Threshold.</li>
+        <li><span class="highlight">EQ de 7 Bandas:</span> Bandas fijas optimizadas para corrección tonal (50Hz a 16kHz), incluyendo Low Shelf y High Shelf en los extremos.</li>
+        <li><span class="highlight">Saturación:</span> Módulo de distorsión armónica para añadir calidez y carácter.</li>
+        <li><span class="highlight">Mid/Side:</span> Control de ganancia independiente para las componentes Mid y Side del audio estéreo.</li>
+        <li><span class="highlight">Compresor:</span> Control de dinámica con Threshold, Ratio, Attack y Release.</li>
+        <li><span class="highlight">Limitador:</span> Control de dinámica final con Ceiling y Threshold.</li>
       </ul>
     </div>
 
     <div class="rack-card">
       <h4 class="analysis-dot">Analysis & Comparison</h4>
       <p>El rack inferior combina los espectros de Referencia, Target y Resultado para una comparación visual directa. La tabla de análisis cuantifica estas diferencias.</p>
+    </div>
+
+    <div class="rack-card">
+      <h4 class="fx-dot">VU Meters</h4>
+      <ul>
+        <li><span class="highlight">IN:</span> Muestra el nivel de entrada de la señal antes de cualquier procesamiento.</li>
+        <li><span class="highlight">GR (Gain Reduction):</span> Indica la cantidad de reducción de ganancia aplicada por el compresor y limitador.</li>
+        <li><span class="highlight">OUT:</span> Muestra el nivel de salida de la señal procesada.</li>
+      </ul>
+      <p>Estos medidores proporcionan una retroalimentación visual en tiempo real sobre los niveles de audio y la dinámica.</p>
+    </div>
+
+    <div class="rack-card">
+      <h4 class="analysis-dot">Controles de Reproducción y Loop</h4>
+      <ul>
+        <li><span class="highlight">Botones Play/Pause/Stop:</span> Controlan la reproducción de la referencia, el target y el resultado procesado.</li>
+        <li><span class="highlight">Controles de Loop:</span> Permiten definir puntos de inicio y fin de loop en las formas de onda de Referencia, Target y Resultado. Arrastra los marcadores en la forma de onda para ajustar el rango.</li>
+        <li><span class="highlight">Sincronización de Loop (Sync):</span> Sincroniza el rango de loop del resultado con el del target, permitiendo una comparación A/B más precisa en una sección específica.</li>
+      </ul>
+    </div>
+
+    <div class="rack-card">
+      <h4 class="analysis-dot">Comparación A/B</h4>
+      <p>El botón <span class="code-inline">A/B</span> permite alternar instantáneamente entre la señal original (A - Dry Bypass) y la señal procesada (B - Live DSP Chain). Esto es crucial para evaluar el impacto de tus ajustes de masterización en tiempo real.</p>
     </div>
   </div>
 
@@ -173,19 +207,22 @@ footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);paddi
     <h3>Flujo de Señal</h3>
     <p>El audio del Target pasa por los siguientes procesos en orden:</p>
     <ol style="padding-left:20px; margin-bottom:20px;">
-      <li>Filtro de Paso Alto (HPF)</li>
-      <li>Ecualizador Paramétrico de 8 bandas</li>
-      <li>Limitador de Pared de Ladrillo (Brickwall)</li>
+      <li>Filtro de Paso Alto (HPF) - Doble etapa para una pendiente de 24 dB/oct.</li>
+      <li>Ecualizador de 7 Bandas (EQ) - Incluye Low Shelf, Peaking y High Shelf.</li>
+      <li>Saturación - Con sobremuestreo 4x para reducir el aliasing.</li>
+      <li>Compresor - Control de dinámica con Threshold, Ratio, Attack y Release.</li>
+      <li>Procesamiento Mid/Side (solo estéreo) - Ajuste de ganancia independiente para Mid y Side.</li>
+      <li>Limitador de Pared de Ladrillo (Brickwall) - Con un release de 150ms para evitar bombeo.</li>
       <li>Ganancia de Salida Final</li>
     </ol>
-    
+
     <p><span class="highlight">Nota:</span> El procesamiento es no destructivo en el navegador hasta que decides descargar el resultado.</p>
   </div>
 
   <!-- SECCIÓN: FAQ -->
   <div id="faq" class="content-section">
     <h2>Preguntas Frecuentes</h2>
-    
+
     <h3>¿Por qué no escucho nada al cargar los archivos?</h3>
     <p>Asegúrate de haber hecho clic en el botón "PLAY" del rack correspondiente. Algunos navegadores bloquean el audio automático hasta que hay una interacción del usuario.</p>
 
@@ -193,10 +230,16 @@ footer{margin-top:40px;text-align:center;font-size:0.7rem;color:var(--dim);paddi
     <p>Soporta formatos estándar web: WAV, MP3, OGG y FLAC. Se recomienda usar WAV para mantener la máxima fidelidad durante el análisis.</p>
 
     <h3>¿El análisis es en tiempo real?</h3>
-    <p>El análisis inicial se realiza sobre el archivo completo al pulsar "ANALYZE". Sin embargo, el espectro del rack de comparación se actualiza en tiempo real mientras ajustas los controles de EQ.</p>
+    <p>El análisis inicial se realiza sobre el archivo completo al pulsar "ANALYZE". Sin embargo, el espectro del rack de comparación y los VU meters se actualizan en tiempo real mientras ajustas los controles de EQ y otros efectos.</p>
+
+    <h3>Atajos de Teclado</h3>
+    <ul>
+      <li><span class="code-inline">W:</span> Alterna entre la señal original (Dry Bypass) y la procesada (Live DSP Chain) en la comparación A/B.</li>
+      <li><span class="code-inline">Escape:</span> Cierra cualquier ventana modal abierta (ej. Confirmación de Reset, Información).</li>
+    </ul>
 
     <h3>¿Cómo reseteo los valores?</h3>
-    <p>Puedes recargar la página para una limpieza total, o ajustar manualmente los sliders a su posición central (0dB).</p>
+    <p>Puedes utilizar el botón <span class="code-inline">RESET</span> para restaurar todos los parámetros a sus valores predeterminados y limpiar las pistas cargadas. Se te pedirá confirmación antes de realizar el reseteo.</p>
   </div>
 
   <footer>
