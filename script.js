@@ -81,6 +81,14 @@ var confirmModal  = document.getElementById('confirmModal');
 var confirmOk     = document.getElementById('confirmOk');
 var confirmCancel = document.getElementById('confirmCancel');
 
+// VU meter element refs — cached to avoid per-frame getElementById
+var vuInCanvas  = document.getElementById('vuIn');
+var vuGrCanvas  = document.getElementById('vuGr');
+var vuOutCanvas = document.getElementById('vuOut');
+var vuInValEl   = document.getElementById('vuInVal');
+var vuGrValEl   = document.getElementById('vuGrVal');
+var vuOutValEl  = document.getElementById('vuOutVal');
+
 // Loop state: start/end as 0..1 fraction of duration
 var refLoop    = { enabled:false, start:0.2, end:0.8, dragging:null };
 var tgtLoop    = { enabled:false, start:0.2, end:0.8, dragging:null };
@@ -281,8 +289,9 @@ function redrawTargetSpec() {
 }
 function redrawResultSpec() {
     clearSpec(canvasSpecResult);
-    if (liveNodes.analyser && livePlaying) {
-        drawSpecFromAnalyser(canvasSpecResult, liveNodes.analyser, '#00ffa3', 'rgba(0,255,163,.14)');
+    if (livePlaying && liveNodes.active) {
+        var an = (abMode === 'A') ? liveNodes.bypassAnalyser : liveNodes.analyser;
+        if (an) drawSpecFromAnalyser(canvasSpecResult, an, '#00ffa3', 'rgba(0,255,163,.14)');
     } else if (resultSpecData) {
         drawSpecCurve(canvasSpecResult, resultSpecData, '#00ffa3', 'rgba(0,255,163,.10)');
     }
@@ -296,8 +305,9 @@ function drawComparativeSpec() {
     drawSpecGrid(ctx, W, H);
     if (refSpecData)    drawSpecCurve(canvasCompSpec, refSpecData, '#ffaa00', 'rgba(255,170,0,.07)');
     if (targetSpecData) drawSpecCurve(canvasCompSpec, targetSpecData, '#4499ff', 'rgba(68,153,255,.07)');
-    if (liveNodes.analyser && livePlaying) {
-        drawSpecFromAnalyser(canvasCompSpec, liveNodes.analyser, '#00ffa3', 'rgba(0,255,163,.1)');
+    if (livePlaying && liveNodes.active) {
+        var an = (abMode === 'A') ? liveNodes.bypassAnalyser : liveNodes.analyser;
+        if (an) drawSpecFromAnalyser(canvasCompSpec, an, '#00ffa3', 'rgba(0,255,163,.1)');
     } else if (resultSpecData) {
         drawSpecCurve(canvasCompSpec, resultSpecData, '#00ffa3', 'rgba(0,255,163,.07)');
     }
@@ -313,21 +323,30 @@ function computeResultSpecPreview() {
         var freq = b * targetSpecData.binHz;
         if (freq < 1) continue;
         var gain = 1;
-        // HPF 2nd-order response
+        // HPF 4th-order response = square of 2nd-order (two cascaded biquads)
         if (hpfF > 21) {
             var r = freq/hpfF, r2 = r*r;
             var denom = Math.sqrt(Math.pow(1-r2,2) + r2/(hpfQv*hpfQv));
-            gain *= r2 / (denom + 1e-12);
+            var h2 = r2 / (denom + 1e-12);
+            gain *= h2 * h2; // 4th-order = squared 2nd-order magnitude
         }
-        // EQ peaking bands (bell approximation)
+        // EQ bands — shelf approximation for extremes, bell for mid bands
         for (var ei = 0; ei < EQ_FREQS.length; ei++) {
             var gDb = parseFloat(sliders[EQ_KEYS[ei]].el.value);
-            if (Math.abs(gDb) > 0.05) {
-                var fc = EQ_FREQS[ei], Q = EQ_QS[ei];
+            if (Math.abs(gDb) < 0.05) continue;
+            var fc = EQ_FREQS[ei], Q = EQ_QS[ei], blend;
+            if (ei === 0) {
+                // SUB 50 Hz — lowshelf: full gain below fc, rolls off above
+                blend = 1 / (1 + (freq/fc) * (freq/fc));
+            } else if (ei === 6) {
+                // AIR 16 kHz — highshelf: full gain above fc, rolls off below
+                blend = 1 / (1 + (fc/freq) * (fc/freq));
+            } else {
+                // Peaking bell
                 var lr = Math.log(freq/fc);
-                var bell = Math.exp(-0.5 * lr*lr * Q*Q);
-                gain *= Math.pow(10, gDb/20 * bell);
+                blend = Math.exp(-0.5 * lr*lr * Q*Q);
             }
+            gain *= Math.pow(10, gDb/20 * blend);
         }
         mag[b] = targetSpecData.mag[b] * Math.max(0, gain);
     }
@@ -1074,13 +1093,7 @@ function drawVuBar(canvas, dbVal, mode) {
 }
 
 function updateVuMeters() {
-    var cIn  = document.getElementById('vuIn');
-    var cGr  = document.getElementById('vuGr');
-    var cOut = document.getElementById('vuOut');
-    var vIn  = document.getElementById('vuInVal');
-    var vGr  = document.getElementById('vuGrVal');
-    var vOut = document.getElementById('vuOutVal');
-    if (!cIn || !liveNodes.active) return;
+    if (!vuInCanvas || !liveNodes.active) return;
 
     var rawIn  = analyserPeakDb(liveNodes.inputAnalyser);
     var rawOut = analyserPeakDb(abMode === 'A' ? liveNodes.bypassAnalyser : liveNodes.analyser);
@@ -1091,24 +1104,22 @@ function updateVuMeters() {
     _vuInPeak  = rawIn  > _vuInPeak  ? rawIn  : Math.max(rawIn,  _vuInPeak  - decay);
     _vuOutPeak = rawOut > _vuOutPeak ? rawOut : Math.max(rawOut, _vuOutPeak - decay);
 
-    drawVuBar(cIn,  _vuInPeak,  'level');
-    drawVuBar(cGr,  gr,         'gr');
-    drawVuBar(cOut, _vuOutPeak, 'level');
+    drawVuBar(vuInCanvas,  _vuInPeak,  'level');
+    drawVuBar(vuGrCanvas,  gr,         'gr');
+    drawVuBar(vuOutCanvas, _vuOutPeak, 'level');
 
     var fmt = function(v) { return v > -80 ? (v >= 0 ? '+' : '') + v.toFixed(1) + ' dB' : '—'; };
-    vIn.textContent  = fmt(_vuInPeak);
-    vGr.textContent  = gr < -0.2 ? gr.toFixed(1) + ' dB' : '—';
-    vOut.textContent = fmt(_vuOutPeak);
+    vuInValEl.textContent  = fmt(_vuInPeak);
+    vuGrValEl.textContent  = gr < -0.2 ? gr.toFixed(1) + ' dB' : '—';
+    vuOutValEl.textContent = fmt(_vuOutPeak);
 }
 
 function clearVuMeters() {
     _vuInPeak = -90; _vuOutPeak = -90;
-    ['vuIn','vuGr','vuOut'].forEach(function(id) {
-        var c = document.getElementById(id);
+    [vuInCanvas, vuGrCanvas, vuOutCanvas].forEach(function(c) {
         if (c) { var cx = c.getContext('2d'); cx.fillStyle='#060609'; cx.fillRect(0,0,c.width,c.height); }
     });
-    var ids = ['vuInVal','vuGrVal','vuOutVal'];
-    ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='\u2014'; });
+    [vuInValEl, vuGrValEl, vuOutValEl].forEach(function(el){ if(el) el.textContent='\u2014'; });
 }
 
 // ============================================================
@@ -1355,6 +1366,8 @@ abBtn.addEventListener('click', switchAB);
 
 // Keyboard shortcut: press W to toggle A/B while result is visible
 document.addEventListener('keydown', function(e) {
+    var tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     if (e.key === 'w' || e.key === 'W') {
         if (liveNodes.active && !abBtn.disabled) switchAB();
     }
